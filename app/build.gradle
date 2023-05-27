@@ -6,6 +6,10 @@ plugins {
 android {
     namespace 'com.example.a82'
     compileSdk 33
+    packagingOptions {
+        exclude 'META-INF/INDEX.LIST'
+        exclude 'META-INF/DEPENDENCIES'
+    }
 
 
     defaultConfig {
@@ -36,12 +40,12 @@ dependencies {
     implementation 'com.google.firebase:firebase-database:19.7.0'
     implementation 'com.google.firebase:firebase-storage:20.0.0'
     implementation 'com.google.firebase:firebase-auth:20.0.1'
+    implementation 'com.firebaseui:firebase-ui-database:8.0.0'
     implementation 'com.google.android.gms:play-services-code-scanner:16.0.0'
     implementation 'com.google.firebase:firebase-ml-vision-barcode-model:16.0.2'
     implementation 'com.squareup.okhttp3:okhttp:4.9.1'
     implementation 'com.google.code.gson:gson:2.8.8'
-    implementation 'com.google.zxing:core:3.3.3'
-
+    implementation 'com.google.cloud:google-cloud-translate:2.16.0'
 
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.9.0'

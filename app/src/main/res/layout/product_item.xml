@@ -5,7 +5,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
     <androidx.cardview.widget.CardView
-        android:id="@+id/recycle_order_item"
+        android:id="@+id/recycle_product_item"
         android:layout_marginLeft="10dp"
         android:layout_marginTop="20dp"
         android:layout_width="393dp"
@@ -18,7 +18,7 @@
             android:layout_height="match_parent">
 
             <TextView
-                android:id="@+id/recycle_order_title"
+                android:id="@+id/recycle_product_name"
                 android:layout_width="358dp"
                 android:layout_height="30dp"
                 android:layout_marginStart="16dp"
@@ -31,7 +31,7 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                android:id="@+id/recycle_order_description"
+                android:id="@+id/recycle_product_desc"
                 android:layout_width="362dp"
                 android:layout_height="83dp"
                 android:layout_marginStart="16dp"
@@ -40,7 +40,7 @@
                 android:textColor="@color/black"
                 android:textSize="20dp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/recycle_order_title" />
+                app:layout_constraintTop_toBottomOf="@+id/recycle_product_name" />
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>

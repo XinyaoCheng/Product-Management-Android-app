@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#DBEDEF"
-    tools:context=".HomeFragment">
+    tools:context=".fragment.HomeFragment">
 
     <LinearLayout
         android:id="@+id/beverages_linearLayout"
@@ -106,7 +106,7 @@
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:fontFamily="@font/acme"
-            android:text="Personal Care Product"
+            android:text="Personal Care"
             android:layout_gravity="center"
             android:textColor="@color/black"
             android:textSize="13dp"
@@ -149,7 +149,7 @@
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:fontFamily="@font/acme"
-            android:text="Household and Cleaning Product"
+            android:text="Household and Cleaning"
             android:layout_gravity="center"
             android:textColor="@color/black"
             android:textSize="13dp"

@@ -1,10 +1,9 @@
-package com.example.a82;
+package com.example.a82.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentContainerView;
 import androidx.fragment.app.FragmentManager;
 
 import android.os.Bundle;
@@ -12,6 +11,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
+import com.example.a82.fragment.HomeFragment;
+import com.example.a82.R;
 import com.google.android.material.navigation.NavigationView;
 
 public class MainActivity extends AppCompatActivity {
@@ -30,6 +31,8 @@ public class MainActivity extends AppCompatActivity {
         repertory_view = findViewById(R.id.repertory_linearlayout);
         account_view = findViewById(R.id.account_linearlayout);
         menu_button = findViewById(R.id.menu_button);
+        HomeFragment homeFragment = new HomeFragment();
+        setFragment(homeFragment);
 
 
         menu_button.setOnClickListener(new View.OnClickListener() {
