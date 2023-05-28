@@ -41,6 +41,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.Date;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -153,7 +154,24 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
     }
 
     private void setRecycleView() {
-        query = FirebaseDatabase.getInstance().getReference("products");
+
+        Date currentDate = new Date();
+
+
+        // get current date
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(currentDate);
+        Log.v("现在的时间戳",String.valueOf(currentDate.getTime()));
+        // the date of one month later
+        calendar.add(Calendar.MONTH, 1);
+        Date oneMonthLater = calendar.getTime();
+        Log.v("一个月之后的",String.valueOf(oneMonthLater.getTime()-1));
+
+        //create a new query, to select the expiry date between now and one month later
+        query = FirebaseDatabase.getInstance().getReference("products")
+                .orderByChild("expiry_time")
+                .startAt(currentDate.getTime())
+                .endAt(oneMonthLater.getTime());
 
         FirebaseRecyclerOptions<ProductModel> options =
                 new FirebaseRecyclerOptions.Builder<ProductModel>()
@@ -161,37 +179,16 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
                             @NonNull
                             @Override
                             public ProductModel parseSnapshot(@NonNull DataSnapshot snapshot) {
-
-                                int year = (int) snapshot.child("expiry_year").getValue();
-                                int month = (int) snapshot.child("expiry_month").getValue();
-                                int day = (int) snapshot.child("expiry_day").getValue();
-                                Calendar currentDate = Calendar.getInstance();
-                                Calendar expiryDate = Calendar.getInstance();
-                                expiryDate.set(year,month,day);
-                                int monthBetween =0;
-
-
-                                int yearDiff = expiryDate.get(Calendar.YEAR) - currentDate.get(Calendar.YEAR);
-
-                                int monthDiff = yearDiff * 12 + expiryDate.get(Calendar.MONTH) - currentDate.get(Calendar.MONTH);
-
-                                if (monthDiff > 1) {
-                                    //less than one month between now and expiry date\
-                                    ProductModel model = new ProductModel(snapshot.child("name").getValue().toString(),
-                                            snapshot.child("price").getValue().toString(),
-                                            snapshot.child("supplier").getValue().toString(),
-                                            snapshot.child("standard").getValue().toString(),
-                                            snapshot.child("amount").getValue().toString(),
-                                            snapshot.child("expiry_year").getValue().toString(),
-                                            snapshot.child("expiry_month").getValue().toString(),
-                                            snapshot.child("expiry_day").getValue().toString(),
-                                            snapshot.child("category").getValue().toString());
-                                    return model;
-                                } else{
-                                    return null;
-                                }
-
-
+                                Log.v("homepage输出",snapshot.getValue().toString());
+                                ProductModel model = new ProductModel(snapshot.child("name").getValue().toString(),
+                                        snapshot.child("price").getValue().toString(),
+                                        snapshot.child("supplier").getValue().toString(),
+                                        snapshot.child("standard").getValue().toString(),
+                                        snapshot.child("amount").getValue().toString(),
+                                        snapshot.child("category").getValue().toString(),
+                                        snapshot.child("id").getValue().toString(),
+                                        snapshot.child("expiry_time").getValue(Long.class));
+                                return model;
                             }
                         })
                         .build();
@@ -208,31 +205,32 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
 
             @Override
             protected void onBindViewHolder(@NonNull MyViewHodler holder, int position, @NonNull ProductModel model) {
-                holder.nameView.setText(model.getName());
-                holder.descVide.setText(model.toString());
-                holder.card.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Bundle mBundle= new Bundle();
-                        mBundle.putString("name", model.getName());
-                        mBundle.putString("price", model.getPrice());
-                        mBundle.putString("supplier", model.getSupplier());
-                        mBundle.putString("standard", model.getStandard());
-                        mBundle.putString("amount", model.getAmount());
-                        mBundle.putString("expiry_year", model.getExpiry_year());
-                        mBundle.putString("expiry_month", model.getExpiry_month());
-                        mBundle.putString("expiry_day", model.getExpiry_day());
-                        mBundle.putString("category", model.getExpiry_year());
-                        ProductFragment productFragment = new ProductFragment();
-                        productFragment.setArguments(mBundle);
-                        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                        fragmentTransaction.replace(R.id.home_fragmentView, productFragment);
-                        fragmentTransaction.addToBackStack(null);
-                        fragmentTransaction.commit();
-                    }
-                });
-            }
+
+                    holder.nameView.setText(model.getName());
+                    holder.descVide.setText(model.toString());
+                    holder.card.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Bundle mBundle= new Bundle();
+                            mBundle.putString("name", model.getName());
+                            mBundle.putString("price", model.getPrice());
+                            mBundle.putString("supplier", model.getSupplier());
+                            mBundle.putString("standard", model.getStandard());
+                            mBundle.putString("id",model.getId());
+                            mBundle.putString("amount", model.getAmount());
+                            mBundle.putLong("expiry_time",model.getExpiry_time());
+                            ProductFragment productFragment = new ProductFragment();
+                            productFragment.setArguments(mBundle);
+                            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                            fragmentTransaction.replace(R.id.home_fragmentView, productFragment);
+                            fragmentTransaction.addToBackStack(null);
+                            fragmentTransaction.commit();
+                        }
+                    });
+                }
+
+
         };
         RecyclerView.LayoutManager manager = new GridLayoutManager(getContext(),1);
         product_expiry_rv.setLayoutManager(manager);
@@ -318,7 +316,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
 
-                }
+    }
 
 
     @Override

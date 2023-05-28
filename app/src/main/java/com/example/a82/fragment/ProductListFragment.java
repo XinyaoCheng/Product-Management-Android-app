@@ -95,7 +95,9 @@ public class ProductListFragment extends Fragment {
     }
 
     private void setRecycleView(String category) {
-        query = FirebaseDatabase.getInstance().getReference("products").child(category);
+        query = FirebaseDatabase.getInstance().getReference("products")
+                .orderByChild("category")
+                .equalTo(category);
 
         FirebaseRecyclerOptions<ProductModel> options =
                 new FirebaseRecyclerOptions.Builder<ProductModel>()
@@ -109,10 +111,10 @@ public class ProductListFragment extends Fragment {
                                         snapshot.child("supplier").getValue().toString(),
                                         snapshot.child("standard").getValue().toString(),
                                         snapshot.child("amount").getValue().toString(),
-                                        snapshot.child("expiry_year").getValue().toString(),
-                                        snapshot.child("expiry_month").getValue().toString(),
-                                        snapshot.child("expiry_day").getValue().toString(),
-                                        snapshot.child("category").getValue().toString());
+                                        snapshot.child("category").getValue().toString(),
+                                        snapshot.child("id").getValue().toString(),
+                                        snapshot.child("expiry_time").getValue(Long.class));
+                                Log.v("测试时间戳能否打印",model.toString());
                                 return model;
 
                             }
@@ -142,10 +144,8 @@ public class ProductListFragment extends Fragment {
                         mBundle.putString("supplier", model.getSupplier());
                         mBundle.putString("standard", model.getStandard());
                         mBundle.putString("amount", model.getAmount());
-                        mBundle.putString("expiry_year", model.getExpiry_year());
-                        mBundle.putString("expiry_month", model.getExpiry_month());
-                        mBundle.putString("expiry_day", model.getExpiry_day());
-                        mBundle.putString("category", model.getExpiry_year());
+                        mBundle.putString("id",model.getId());
+                        mBundle.putLong("expiry_time",model.getExpiry_time());
                         ProductFragment productFragment = new ProductFragment();
                         productFragment.setArguments(mBundle);
                         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();

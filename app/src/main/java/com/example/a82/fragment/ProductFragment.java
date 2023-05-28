@@ -2,6 +2,7 @@ package com.example.a82.fragment;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
@@ -11,6 +12,8 @@ import android.os.Bundle;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.text.TextUtils;
 import android.util.Log;
@@ -31,9 +34,12 @@ import com.example.a82.util.TranslateUtil;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.common.io.BaseEncoding;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -43,6 +49,8 @@ import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -67,7 +75,7 @@ public class ProductFragment extends Fragment {
     private String mParam1;
     private String mParam2;
     String category;
-    Button edit_button,save_button;
+    Button edit_button,save_button, delete_button;
 
     EditText name, supplier,standard,price, amount, expiry_year, expiry_month,expiry_day;
     Spinner category_spinner;
@@ -166,6 +174,41 @@ public class ProductFragment extends Fragment {
             }
         });
 
+        //delete clicked
+        delete_button.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+
+                String delete_id = bundle.getString("id");
+                if(delete_id!=null){
+                    DatabaseReference deleteRef = FirebaseDatabase.getInstance().getReference("products").child(delete_id);
+                    deleteRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            snapshot.getRef().removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void unused) {
+                                    Toast.makeText(getContext(), "success to remove this item", Toast.LENGTH_SHORT).show();
+                                    HomeFragment homeFragment = new HomeFragment();
+                                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                                    fragmentTransaction.replace(R.id.home_fragmentView, homeFragment);
+                                    fragmentTransaction.addToBackStack(null);
+                                    fragmentTransaction.commit();
+                                    setUnEditable();
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
+                }
+            }
+        });
+
 
         return rootview;
     }
@@ -182,7 +225,7 @@ public class ProductFragment extends Fragment {
         expiry_month = rootview.findViewById(R.id.product_expiry_month);
         expiry_day = rootview.findViewById(R.id.product_expiry_day);
         category_spinner = rootview.findViewById(R.id.category_spinner);
-
+        delete_button = rootview.findViewById(R.id.delete_button);
 
     }
 
@@ -226,14 +269,21 @@ public class ProductFragment extends Fragment {
         category_spinner.setEnabled(false);
     }
     private void saveInFirebase() {
-        DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference("products/"+category);
-        Query
+        DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference("products/");
+        //TODO:select from existing product
         String id = databaseRef.push().getKey();
+        productModel.setId(id);
         databaseRef.child(id).setValue(productModel)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void unused) {
                         Toast.makeText(getContext(), "success to create your new product", Toast.LENGTH_SHORT).show();
+                        HomeFragment homeFragment = new HomeFragment();
+                        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                        fragmentTransaction.replace(R.id.home_fragmentView, homeFragment);
+                        fragmentTransaction.addToBackStack(null);
+                        fragmentTransaction.commit();
                         setUnEditable();
                     }
                 })
@@ -283,15 +333,27 @@ public class ProductFragment extends Fragment {
                     .show();
             return false;
         }else{
+
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(Calendar.YEAR, Integer.parseInt(expiry_year.getText().toString()));
+            calendar.set(Calendar.MONTH, Integer.parseInt(expiry_month.getText().toString()) - 1); // 月份从0开始，需要减去1
+            if(TextUtils.isEmpty(expiry_day.getText())){
+                //user didn't enter expiry day
+                //defaultly set it 1
+                calendar.set(Calendar.DAY_OF_MONTH, 1);
+            }else{
+                calendar.set(Calendar.DAY_OF_MONTH, Integer.parseInt(expiry_day.getText().toString()));
+            }
+            Date date = calendar.getTime();
+            long timestamp = date.getTime();
             productModel = new ProductModel(name.getText().toString(),
                     price.getText().toString(),
                     supplier.getText().toString(),
                     amount.getText().toString(),
                     standard.getText().toString(),
-                    expiry_year.getText().toString(),
-                    expiry_month.getText().toString(),
-                    expiry_day.getText().toString(),
-                    category);
+                    category,
+                    "",
+                    timestamp);
         }
 
 

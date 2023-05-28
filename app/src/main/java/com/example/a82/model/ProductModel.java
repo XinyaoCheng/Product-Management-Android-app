@@ -1,21 +1,28 @@
 package com.example.a82.model;
 
 public class ProductModel {
-    private String name, price, supplier, standard, amount, expiry_year, expiry_month, expiry_day,category;
-
+    private String name, price, supplier, standard, amount,category,id;
+    private long expiry_time;
     public ProductModel() {
     }
 
-    public ProductModel(String name, String price, String supplier, String standard, String amount, String expiry_year, String expiry_month, String expiry_day, String category) {
+    public ProductModel(String name, String price, String supplier, String standard, String amount, String category, String id, long expiry_time) {
         this.name = name;
         this.price = price;
         this.supplier = supplier;
         this.standard = standard;
         this.amount = amount;
-        this.expiry_year = expiry_year;
-        this.expiry_month = expiry_month;
-        this.expiry_day = expiry_day;
         this.category = category;
+        this.id = id;
+        this.expiry_time = expiry_time;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getCategory() {
@@ -66,28 +73,12 @@ public class ProductModel {
         this.amount = amount;
     }
 
-    public String getExpiry_year() {
-        return expiry_year;
+    public long getExpiry_time() {
+        return expiry_time;
     }
 
-    public void setExpiry_year(String expiry_year) {
-        this.expiry_year = expiry_year;
-    }
-
-    public String getExpiry_month() {
-        return expiry_month;
-    }
-
-    public void setExpiry_month(String expiry_month) {
-        this.expiry_month = expiry_month;
-    }
-
-    public String getExpiry_day() {
-        return expiry_day;
-    }
-
-    public void setExpiry_day(String expiry_day) {
-        this.expiry_day = expiry_day;
+    public void setExpiry_time(long expiry_time) {
+        this.expiry_time = expiry_time;
     }
 
     @Override
@@ -98,10 +89,8 @@ public class ProductModel {
                 ", supplier='" + supplier + '\'' +
                 ", standard='" + standard + '\'' +
                 ", amount='" + amount + '\'' +
-                ", expiry_year='" + expiry_year + '\'' +
-                ", expiry_month='" + expiry_month + '\'' +
-                ", expiry_day='" + expiry_day + '\'' +
                 ", category='" + category + '\'' +
+                ", expiry_time=" + expiry_time +
                 '}';
     }
 }

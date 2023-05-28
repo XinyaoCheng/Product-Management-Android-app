@@ -177,13 +177,14 @@
 
     <ScrollView
         android:layout_width="410dp"
-        android:layout_height="320dp"
-        android:layout_marginTop="270dp"
+        android:layout_height="421dp"
+        android:layout_marginTop="230dp"
         android:layout_marginEnd="116dp">
-<androidx.recyclerview.widget.RecyclerView
-    android:id="@+id/expiry_recycleView"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/expiry_recycleView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
     </ScrollView>
 </FrameLayout>
