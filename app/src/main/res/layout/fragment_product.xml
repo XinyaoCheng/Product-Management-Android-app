@@ -54,11 +54,12 @@
 
             <EditText
                 android:id="@+id/product_supplier"
-                android:layout_width="168dp"
-                android:layout_height="23dp"
+                android:layout_width="170dp"
+                android:layout_height="35dp"
                 android:layout_gravity="center"
                 android:layout_marginStart="128dp"
-                android:layout_marginTop="72dp"
+                android:layout_marginTop="68dp"
+                android:gravity="start"
                 android:background="@drawable/blank"
                 android:fontFamily="sans-serif"
                 android:text="Sichuan Huiji Food Co., Ltd"
@@ -281,7 +282,7 @@
         android:id="@+id/edit_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="76dp"
+        android:layout_marginStart="48dp"
         android:layout_marginTop="56dp"
         android:backgroundTint="#EF8260"
         android:text="edit"
@@ -289,16 +290,26 @@
         app:layout_constraintTop_toBottomOf="@+id/new_product" />
 
     <Button
+        android:id="@+id/delete_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="168dp"
+        android:layout_marginTop="56dp"
+        android:backgroundTint="#EFE060"
+        android:text="delete"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/new_product" />
+
+    <Button
         android:id="@+id/save_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="212dp"
+        android:layout_marginStart="284dp"
         android:layout_marginTop="56dp"
         android:backgroundTint="#91DEE8"
         android:text="save"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/new_product" />
-
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

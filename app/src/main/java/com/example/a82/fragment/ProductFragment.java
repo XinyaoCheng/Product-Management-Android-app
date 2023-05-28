@@ -33,6 +33,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.common.io.BaseEncoding;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -226,6 +227,7 @@ public class ProductFragment extends Fragment {
     }
     private void saveInFirebase() {
         DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference("products/"+category);
+        Query
         String id = databaseRef.push().getKey();
         databaseRef.child(id).setValue(productModel)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {

@@ -95,21 +95,8 @@ public class ProductListFragment extends Fragment {
     }
 
     private void setRecycleView(String category) {
-        Log.v("进入了这个函数","");
-//        query = FirebaseDatabase.getInstance().getReference("products/"+category);
         query = FirebaseDatabase.getInstance().getReference("products").child(category);
-        Log.v("连接到数据库了",query.toString());
-//        query.addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                Log.v("新测试",snapshot.getValue().toString());
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//
-//            }
-//        });
+
         FirebaseRecyclerOptions<ProductModel> options =
                 new FirebaseRecyclerOptions.Builder<ProductModel>()
                         .setQuery(query, new SnapshotParser<ProductModel>() {
