@@ -58,31 +58,31 @@
         app:layout_constraintTop_toBottomOf="@+id/imageView3" />
 
     <Button
-        android:id="@+id/login"
-        android:layout_width="102dp"
-        android:layout_height="45dp"
-        android:layout_gravity="start"
-        android:layout_marginStart="152dp"
-        android:layout_marginTop="76dp"
-        android:background="#F3DED7"
-        android:text="login in"
-        android:textColor="@color/black"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/password" />
-
-    <Button
         android:id="@+id/register"
         android:layout_width="102dp"
         android:layout_height="45dp"
         android:layout_gravity="start"
-        android:layout_marginStart="152dp"
+        android:layout_marginStart="136dp"
 
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="28dp"
         android:background="#F3DED7"
         android:text="register"
         android:textColor="@color/black"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/login" />
+
+    <Button
+        android:id="@+id/login"
+        android:layout_width="102dp"
+        android:layout_height="45dp"
+        android:layout_gravity="start"
+        android:layout_marginStart="136dp"
+        android:layout_marginTop="80dp"
+        android:background="#F3DED7"
+        android:text="login in"
+        android:textColor="@color/black"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/password" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -31,8 +31,10 @@ import android.widget.Toast;
 import com.example.a82.R;
 import com.example.a82.model.ProductModel;
 import com.example.a82.util.TranslateUtil;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.common.io.BaseEncoding;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -48,6 +50,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -132,6 +135,8 @@ public class ProductFragment extends Fragment {
             isNewProduct = true;
         }else{
             id = bundle.getString("id").toString();
+            category = bundle.getString("category").toString();
+            setSpinner(category);
             isNewProduct = false;
         }
 //        if(bundle.getInt("new_product?",0)==1){
@@ -139,15 +144,23 @@ public class ProductFragment extends Fragment {
         setInfo(price,bundle.getString("price","unknown"));
         setInfo(supplier,bundle.getString("supplier","unknown"));
         setInfo(standard,bundle.getString("standard","unknown"));
-        if(bundle.getString("expiry_year")!=null){
-            expiry_year.setText(bundle.getString("expiry_year"));
+        if(bundle.containsKey("expiry_time")){
+            Date date = new Date(bundle.getLong("expiry_time"));
+            Log.v("过期日期",date.toString());
+            SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy");
+            SimpleDateFormat monthFormat = new SimpleDateFormat("MM");
+            SimpleDateFormat dayFormat = new SimpleDateFormat("dd");
+           //convert timestamp to year, month and day
+            String year = yearFormat.format(date);
+            String month = monthFormat.format(date);
+            String day = dayFormat.format(date);
+            expiry_year.setText(year);
+            expiry_month.setText(month);
+            expiry_day.setText(day);
+        }else{
+            Log.v("expiry time为空","");
         }
-        if(bundle.getString("expiry_month")!=null){
-            expiry_month.setText(bundle.getString("expiry_month"));
-        }
-        if(bundle.getString("expiry_day")!=null){
-            expiry_day.setText(bundle.getString("expiry_day"));
-        }
+
         setUnEditable();
         //spinner slected
         category_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -195,17 +208,25 @@ public class ProductFragment extends Fragment {
                     deleteRef.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            snapshot.getRef().removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                            Log.v("即将删除的是", snapshot.toString());
+                            snapshot.getRef().removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
-                                public void onSuccess(Void unused) {
-                                    Toast.makeText(getContext(), "success to remove this item", Toast.LENGTH_SHORT).show();
-                                    HomeFragment homeFragment = new HomeFragment();
-                                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                                    fragmentTransaction.replace(R.id.home_fragmentView, homeFragment);
-                                    fragmentTransaction.addToBackStack(null);
-                                    fragmentTransaction.commit();
-                                    setUnEditable();
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if(task.isSuccessful()) {
+                                        Toast.makeText(getContext(), "success to remove this item", Toast.LENGTH_SHORT).show();
+                                        HomeFragment homeFragment = new HomeFragment();
+                                        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                                        fragmentTransaction.replace(R.id.home_fragmentView, homeFragment);
+                                        fragmentTransaction.addToBackStack(null);
+                                        fragmentTransaction.commit();
+                                        setUnEditable();
+                                    } else{
+                                        Toast.makeText(getContext(), "fail to remove this item"+task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+
+                                    }
+
+
                                 }
                             });
                         }
@@ -215,12 +236,22 @@ public class ProductFragment extends Fragment {
 
                         }
                     });
+                    }
+
+
                 }
-            }
-        });
+            });
 
 
         return rootview;
+    }
+
+    private void setSpinner(String category) {
+        ArrayAdapter<String> adapter = (ArrayAdapter<String>) category_spinner.getAdapter();
+        if(adapter!=null){
+            int position = adapter.getPosition(category);
+            category_spinner.setSelection(position);
+        }
     }
 
     private void initial(View rootview) {

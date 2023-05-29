@@ -21,23 +21,30 @@
         android:layout_marginTop="16dp"
         android:layout_marginEnd="116dp"
         android:fontFamily="@font/acme"
-        android:text="Welcome,Xinyao!"
+        android:text="Welcome,Admin!"
         android:textColor="#73ABC5"
         android:textSize="30dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-        <androidx.drawerlayout.widget.DrawerLayout
-            android:id="@+id/drawerLayout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
 
+    <androidx.drawerlayout.widget.DrawerLayout
+        android:id="@+id/drawerLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/home_fragmentView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="60dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
         <com.google.android.material.navigation.NavigationView
             android:id="@+id/navigation"
             android:layout_width="224dp"
-            android:layout_height="731dp"
+            android:layout_height="match_parent"
             android:layout_gravity="start"
             android:background="#F3DED7"
             tools:layout_editor_absoluteY="0dp">
@@ -130,11 +137,5 @@
 
         </com.google.android.material.navigation.NavigationView>
     </androidx.drawerlayout.widget.DrawerLayout>
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/home_fragmentView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="60dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

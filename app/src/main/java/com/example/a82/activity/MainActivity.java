@@ -1,5 +1,6 @@
 package com.example.a82.activity;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -11,6 +12,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
+import com.example.a82.fragment.RepertoryFragment;
 import com.example.a82.fragment.HomeFragment;
 import com.example.a82.R;
 import com.google.android.material.navigation.NavigationView;
@@ -35,6 +37,29 @@ public class MainActivity extends AppCompatActivity {
         setFragment(homeFragment);
 
 
+        drawerLayout.addDrawerListener(new DrawerLayout.DrawerListener() {
+            @Override
+            public void onDrawerSlide(@NonNull View drawerView, float slideOffset) {
+
+            }
+
+            @Override
+            public void onDrawerOpened(@NonNull View drawerView) {
+                menu_button.setVisibility(View.INVISIBLE);
+
+            }
+
+            @Override
+            public void onDrawerClosed(@NonNull View drawerView) {
+                menu_button.setVisibility(View.VISIBLE);
+
+            }
+
+            @Override
+            public void onDrawerStateChanged(int newState) {
+
+            }
+        });
         menu_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -54,6 +79,13 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 HomeFragment homeFragment = new HomeFragment();
                 setFragment(homeFragment);
+            }
+        });
+        repertory_view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                RepertoryFragment repertoryFragment = new RepertoryFragment();
+                setFragment(repertoryFragment);
             }
         });
     }

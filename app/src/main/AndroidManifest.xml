@@ -18,7 +18,6 @@
             android:exported="false" />
         <activity
             android:name=".activity.LoginActivity"
-            android:exported="false"
             android:label="@string/title_activity_login" />
 
         <meta-data

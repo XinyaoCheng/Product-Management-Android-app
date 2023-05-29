@@ -1,6 +1,5 @@
 package com.example.a82.fragment;
 
-import android.app.DownloadManager;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -14,6 +13,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.Spinner;
 
 import com.example.a82.R;
 import com.example.a82.model.ProductModel;
@@ -26,13 +27,12 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
-
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link ProductListFragment#newInstance} factory method to
+ * Use the {@link RepertoryFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ProductListFragment extends Fragment {
+public class RepertoryFragment extends Fragment {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -42,11 +42,12 @@ public class ProductListFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-    RecyclerView product_list_recycleview;
-    Query query;
+    RecyclerView rv;
+    Spinner category;
+    String category_selected = "Beverages";
     FirebaseRecyclerAdapter productAdapter;
 
-    public ProductListFragment() {
+    public RepertoryFragment() {
         // Required empty public constructor
     }
 
@@ -56,11 +57,11 @@ public class ProductListFragment extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment ProductListFragment.
+     * @return A new instance of fragment RepertoryFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static ProductListFragment newInstance(String param1, String param2) {
-        ProductListFragment fragment = new ProductListFragment();
+    public static RepertoryFragment newInstance(String param1, String param2) {
+        RepertoryFragment fragment = new RepertoryFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -81,24 +82,45 @@ public class ProductListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View rootView = inflater.inflate(R.layout.fragment_product_list, container, false);
-        product_list_recycleview = rootView.findViewById(R.id.products_recycleview);
-        String categoty = getArguments().getString("categorySelected");
+        View rootView =inflater.inflate(R.layout.fragment_repertory, container, false);
+        rv = rootView.findViewById(R.id.repertory_rv);
+        setRecyleView();
+        category = rootView.findViewById(R.id.repertory_spinner);
+        category.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                category_selected = (String) adapterView.getItemAtPosition(i);
+                setRecyleView();
+            }
 
-        if(categoty!=null){
-            Log.v("传入的种类是",categoty);
-            setRecycleView(categoty);
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
 
-        }
+
+            }
+        });
+
 
         return rootView;
     }
 
-    private void setRecycleView(String category) {
-        query = FirebaseDatabase.getInstance().getReference("products")
+    private void setRecyleView() {
+        Log.v("repoerory选择种类",category_selected);
+         Query query = FirebaseDatabase.getInstance().getReference("products")
                 .orderByChild("category")
-                .equalTo(category);
+                .equalTo(category_selected);
 
+         query.addListenerForSingleValueEvent(new ValueEventListener() {
+             @Override
+             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                 Log.v("怎么回事啊又是同样的问题",snapshot.getValue().toString());
+             }
+
+             @Override
+             public void onCancelled(@NonNull DatabaseError error) {
+
+             }
+         });
         FirebaseRecyclerOptions<ProductModel> options =
                 new FirebaseRecyclerOptions.Builder<ProductModel>()
                         .setQuery(query, new SnapshotParser<ProductModel>() {
@@ -114,7 +136,7 @@ public class ProductListFragment extends Fragment {
                                         snapshot.child("category").getValue().toString(),
                                         snapshot.child("id").getValue().toString(),
                                         snapshot.child("expiry_time").getValue(Long.class));
-                                Log.v("测试时间戳能否打印",model.toString());
+                                Log.v("测试仓库获取数据",snapshot.getValue().toString());
                                 return model;
 
                             }
@@ -144,10 +166,9 @@ public class ProductListFragment extends Fragment {
                         mBundle.putString("supplier", model.getSupplier());
                         mBundle.putString("standard", model.getStandard());
                         mBundle.putString("amount", model.getAmount());
-                        mBundle.putString("id",model.getId());
                         mBundle.putString("category",model.getCategory());
+                        mBundle.putString("id",model.getId());
                         mBundle.putLong("expiry_time",model.getExpiry_time());
-                        Log.v("在product list的时候，expiry time为",String.valueOf(model.getExpiry_time()));
                         ProductFragment productFragment = new ProductFragment();
                         productFragment.setArguments(mBundle);
                         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
@@ -160,10 +181,11 @@ public class ProductListFragment extends Fragment {
             }
         };
         RecyclerView.LayoutManager manager = new GridLayoutManager(getContext(),1);
-        product_list_recycleview.setLayoutManager(manager);
-        product_list_recycleview.setAdapter(productAdapter);
-
+        rv.setLayoutManager(manager);
+        rv.setAdapter(productAdapter);
+        productAdapter.startListening();
     }
+
     @Override
     public void onStart() {
         super.onStart();
@@ -174,5 +196,6 @@ public class ProductListFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
+        productAdapter.stopListening();
     }
 }

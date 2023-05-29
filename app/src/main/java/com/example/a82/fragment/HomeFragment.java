@@ -188,6 +188,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
                                         snapshot.child("category").getValue().toString(),
                                         snapshot.child("id").getValue().toString(),
                                         snapshot.child("expiry_time").getValue(Long.class));
+                                Log.v("时间戳测试",String.valueOf(model.getExpiry_time()));
                                 return model;
                             }
                         })
@@ -218,6 +219,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
                             mBundle.putString("standard", model.getStandard());
                             mBundle.putString("id",model.getId());
                             mBundle.putString("amount", model.getAmount());
+                            mBundle.putString("category",model.getCategory());
                             mBundle.putLong("expiry_time",model.getExpiry_time());
                             ProductFragment productFragment = new ProductFragment();
                             productFragment.setArguments(mBundle);
