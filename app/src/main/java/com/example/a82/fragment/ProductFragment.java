@@ -51,6 +51,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Map;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -85,6 +86,8 @@ public class ProductFragment extends Fragment {
     private static String SHA1_KEY = "X-Android-Cert";
     private String result = "";
     ProductModel productModel;
+    Boolean isNewProduct = true;
+    String id;
 
     public ProductFragment() {
         // Required empty public constructor
@@ -124,6 +127,13 @@ public class ProductFragment extends Fragment {
         View rootview = inflater.inflate(R.layout.fragment_product, container, false);
         initial(rootview);
         Bundle bundle = getArguments();
+        //need to see if it exist in database or add a new one
+        if(bundle.getString("id")==null){
+            isNewProduct = true;
+        }else{
+            id = bundle.getString("id").toString();
+            isNewProduct = false;
+        }
 //        if(bundle.getInt("new_product?",0)==1){
         setInfo(name,bundle.getString("name","unknown"));
         setInfo(price,bundle.getString("price","unknown"));
@@ -270,30 +280,57 @@ public class ProductFragment extends Fragment {
     }
     private void saveInFirebase() {
         DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference("products/");
-        //TODO:select from existing product
-        String id = databaseRef.push().getKey();
-        productModel.setId(id);
-        databaseRef.child(id).setValue(productModel)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void unused) {
-                        Toast.makeText(getContext(), "success to create your new product", Toast.LENGTH_SHORT).show();
-                        HomeFragment homeFragment = new HomeFragment();
-                        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                        fragmentTransaction.replace(R.id.home_fragmentView, homeFragment);
-                        fragmentTransaction.addToBackStack(null);
-                        fragmentTransaction.commit();
-                        setUnEditable();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(getContext(), "sorry, failed to add this item, error:"+e.getMessage(), Toast.LENGTH_SHORT).show();
+        //Determine whether he needs to add new items or modify
+        if(isNewProduct){
+            String id = databaseRef.push().getKey();
+            productModel.setId(id);
+            databaseRef.child(id).setValue(productModel)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void unused) {
+                            Toast.makeText(getContext(), "success to create your new product", Toast.LENGTH_SHORT).show();
+                            HomeFragment homeFragment = new HomeFragment();
+                            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                            fragmentTransaction.replace(R.id.home_fragmentView, homeFragment);
+                            fragmentTransaction.addToBackStack(null);
+                            fragmentTransaction.commit();
+                            setUnEditable();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(getContext(), "sorry, failed to add this item, error:"+e.getMessage(), Toast.LENGTH_SHORT).show();
 
-                    }
-                });
+                        }
+                    });
+        }else{
+            DatabaseReference update_ref = databaseRef.child(id);
+            Map<String,Object> updateData = productModel.toMap();
+            update_ref.updateChildren(updateData)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void unused) {
+                            Toast.makeText(getContext(), "success on updating item", Toast.LENGTH_SHORT).show();
+                            HomeFragment homeFragment = new HomeFragment();
+                            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                            fragmentTransaction.replace(R.id.home_fragmentView, homeFragment);
+                            fragmentTransaction.addToBackStack(null);
+                            fragmentTransaction.commit();
+                            setUnEditable();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(getContext(), "fail to update, please try again, error:"+e.getMessage(), Toast.LENGTH_SHORT).show();
+
+                        }
+                    });
+        }
+
     }
 
     private boolean checkLegality() {

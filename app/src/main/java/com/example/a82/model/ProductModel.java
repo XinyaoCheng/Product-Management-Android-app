@@ -1,5 +1,8 @@
 package com.example.a82.model;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class ProductModel {
     private String name, price, supplier, standard, amount,category,id;
     private long expiry_time;
@@ -92,5 +95,18 @@ public class ProductModel {
                 ", category='" + category + '\'' +
                 ", expiry_time=" + expiry_time +
                 '}';
+    }
+
+    public Map<String, Object> toMap(){
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("name", name);
+        result.put("price", price);
+        result.put("supplier", supplier);
+        result.put("standard", standard);
+        result.put("amount", amount);
+        result.put("category", category);
+        result.put("id", id);
+        result.put("expiry_time", expiry_time);
+        return result;
     }
 }
