@@ -24,7 +24,6 @@ import android.widget.LinearLayout;
 import com.example.a82.R;
 import com.example.a82.activity.MainActivity;
 import com.example.a82.model.ProductModel;
-import com.example.a82.util.TranslateUtil;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.firebase.ui.database.SnapshotParser;
@@ -70,6 +69,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
     RecyclerView product_expiry_rv;
     Query query;
     FirebaseRecyclerAdapter productAdapter;
+    //product libery require ID and SECRET to access
     String API_ID = "zqmvtlempyythelg";
     String API_SECRET = "ZXFMSklEUmFhbWJzTkRZMCtaSCsxdz09";
 
@@ -117,6 +117,8 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
         personal_care_button = rootView.findViewById(R.id.personal_care_linearLayout);
         household_clean_button = rootView.findViewById(R.id.household_and_cleaning_linearLayout);
         product_expiry_rv = rootView.findViewById(R.id.expiry_recycleView);
+        //we have five icons to classify products:
+        //beverages, dairy,snacks, personal care product and household cleaning product
         beverages_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -147,8 +149,10 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
                 jumpToProductList("Household and Cleaning");
             }
         });
+        //when click add button, it'll bring you tou scan barcode
         add_button.setOnClickListener(this);
 
+        //set recycleview of expiry time approached products
         setRecycleView();
         return rootView;
     }
@@ -157,15 +161,14 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
 
         Date currentDate = new Date();
 
-
         // get current date
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(currentDate);
-        Log.v("现在的时间戳",String.valueOf(currentDate.getTime()));
+        Log.v("current time",String.valueOf(currentDate.getTime()));
         // the date of one month later
         calendar.add(Calendar.MONTH, 1);
         Date oneMonthLater = calendar.getTime();
-        Log.v("一个月之后的",String.valueOf(oneMonthLater.getTime()-1));
+        Log.v("a month later from now",String.valueOf(oneMonthLater.getTime()-1));
 
         //create a new query, to select the expiry date between now and one month later
         query = FirebaseDatabase.getInstance().getReference("products")
@@ -179,7 +182,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
                             @NonNull
                             @Override
                             public ProductModel parseSnapshot(@NonNull DataSnapshot snapshot) {
-                                Log.v("homepage输出",snapshot.getValue().toString());
                                 ProductModel model = new ProductModel(snapshot.child("name").getValue().toString(),
                                         snapshot.child("price").getValue().toString(),
                                         snapshot.child("supplier").getValue().toString(),
@@ -187,7 +189,8 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
                                         snapshot.child("amount").getValue().toString(),
                                         snapshot.child("category").getValue().toString(),
                                         snapshot.child("id").getValue().toString(),
-                                        snapshot.child("expiry_time").getValue(Long.class));
+                                        snapshot.child("expiry_time").getValue(Long.class),
+                                        snapshot.child("barcode").getValue().toString());
                                 Log.v("时间戳测试",String.valueOf(model.getExpiry_time()));
                                 return model;
                             }
@@ -212,12 +215,14 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
                     holder.card.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
+                            //translate all product information to profuct Fragment
                             Bundle mBundle= new Bundle();
                             mBundle.putString("name", model.getName());
                             mBundle.putString("price", model.getPrice());
                             mBundle.putString("supplier", model.getSupplier());
                             mBundle.putString("standard", model.getStandard());
                             mBundle.putString("id",model.getId());
+                            mBundle.putString("barcode",model.getBarcode());
                             mBundle.putString("amount", model.getAmount());
                             mBundle.putString("category",model.getCategory());
                             mBundle.putLong("expiry_time",model.getExpiry_time());
@@ -240,6 +245,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
 
     }
 
+    //when click each icon, it'll jump to correct product list
     private void jumpToProductList(String category) {
         Bundle mBundle= new Bundle();
         mBundle.putString("categorySelected", category);
@@ -253,6 +259,8 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
     }
 
 
+    //after get barcode from google barcode scanner,
+    //we will make a request to product libery to get correct product info
     public void getProduct(String rawValue) {
         String url = "https://www.mxnzp.com/api/barcode/goods/details?barcode="
                 +rawValue
@@ -262,12 +270,12 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
         Request request = new Request.Builder()
                 .url(url)
                 .build();
-        Log.v("url地址",url);
+        Log.v("url for product libery",url);
 
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                Log.v("获取商品失败",e.getMessage());
+                Log.v("fail to get product info",e.getMessage());
             }
 
             @Override
@@ -275,6 +283,8 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
                 String res = response.body().string();
                 try {
                     JSONObject response_json = new JSONObject(res);
+                    //code = 1 --->success
+                    //code = 0 --->there's no such a product in libery
                     if(response_json.optString("code").equals("1")){
                         JSONObject good = response_json.getJSONObject("data");
 
@@ -303,6 +313,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
         });
     }
 
+    //jump to product detailed page
     public void jumpToProduct(JSONObject good) {
         Bundle mBundle= new Bundle();
         mBundle.putInt("new_product?", 1);
@@ -310,6 +321,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
         mBundle.putString("price", good.optString("price"));
         mBundle.putString("supplier", good.optString("supplier"));
         mBundle.putString("standard", good.optString("standard"));
+        mBundle.putString("barcode",good.optString("barcode"));
         ProductFragment productFragment = new ProductFragment();
         productFragment.setArguments(mBundle);
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
@@ -321,6 +333,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
     }
 
 
+    //google barcode scanner
     @Override
     public void onClick(View view) {
         GmsBarcodeScannerOptions options = new GmsBarcodeScannerOptions.Builder()
@@ -331,13 +344,13 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
         scanner.startScan()
                 .addOnSuccessListener(barcode -> {
                     String rawValue= barcode.getRawValue();
-                    Log.v("扫描成功",rawValue);
+                    Log.v("success to scan",rawValue);
                     getProduct(rawValue);
 
 
                 })
                 .addOnFailureListener(e -> {
-                    Log.v("扫描失败",e.getMessage());
+                    Log.v("fail to scan",e.getMessage());
                 });
     }
     @Override

@@ -6,10 +6,11 @@ import java.util.Map;
 public class ProductModel {
     private String name, price, supplier, standard, amount,category,id;
     private long expiry_time;
+    private String barcode;
     public ProductModel() {
     }
 
-    public ProductModel(String name, String price, String supplier, String standard, String amount, String category, String id, long expiry_time) {
+    public ProductModel(String name, String price, String supplier, String standard, String amount, String category, String id, long expiry_time, String barcode) {
         this.name = name;
         this.price = price;
         this.supplier = supplier;
@@ -18,6 +19,15 @@ public class ProductModel {
         this.category = category;
         this.id = id;
         this.expiry_time = expiry_time;
+        this.barcode = barcode;
+    }
+
+    public String getBarcode() {
+        return barcode;
+    }
+
+    public void setBarcode(String barcode) {
+        this.barcode = barcode;
     }
 
     public String getId() {
@@ -86,15 +96,8 @@ public class ProductModel {
 
     @Override
     public String toString() {
-        return "ProductModel{" +
-                "name='" + name + '\'' +
-                ", price='" + price + '\'' +
-                ", supplier='" + supplier + '\'' +
-                ", standard='" + standard + '\'' +
-                ", amount='" + amount + '\'' +
-                ", category='" + category + '\'' +
-                ", expiry_time=" + expiry_time +
-                '}';
+        return "Amount:"+amount
+                +"\n \nclick here to see all detail";
     }
 
     public Map<String, Object> toMap(){
@@ -109,4 +112,6 @@ public class ProductModel {
         result.put("expiry_time", expiry_time);
         return result;
     }
+
+
 }

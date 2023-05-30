@@ -279,10 +279,21 @@
     </androidx.cardview.widget.CardView>
 
     <Button
+        android:id="@+id/generate_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="292dp"
+        android:layout_marginTop="56dp"
+        android:backgroundTint="#B9E686"
+        android:text="generate"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/new_product" />
+
+    <Button
         android:id="@+id/edit_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="48dp"
+        android:layout_marginStart="28dp"
         android:layout_marginTop="56dp"
         android:backgroundTint="#EF8260"
         android:text="edit"
@@ -293,7 +304,7 @@
         android:id="@+id/delete_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="168dp"
+        android:layout_marginStart="116dp"
         android:layout_marginTop="56dp"
         android:backgroundTint="#EFE060"
         android:text="delete"
@@ -304,7 +315,7 @@
         android:id="@+id/save_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="284dp"
+        android:layout_marginStart="204dp"
         android:layout_marginTop="56dp"
         android:backgroundTint="#91DEE8"
         android:text="save"

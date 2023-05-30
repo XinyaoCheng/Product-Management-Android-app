@@ -37,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
         setFragment(homeFragment);
 
 
+        //slide menu function
         drawerLayout.addDrawerListener(new DrawerLayout.DrawerListener() {
             @Override
             public void onDrawerSlide(@NonNull View drawerView, float slideOffset) {

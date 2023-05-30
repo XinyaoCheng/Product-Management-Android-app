@@ -86,7 +86,6 @@ public class ProductListFragment extends Fragment {
         String categoty = getArguments().getString("categorySelected");
 
         if(categoty!=null){
-            Log.v("传入的种类是",categoty);
             setRecycleView(categoty);
 
         }
@@ -113,8 +112,8 @@ public class ProductListFragment extends Fragment {
                                         snapshot.child("amount").getValue().toString(),
                                         snapshot.child("category").getValue().toString(),
                                         snapshot.child("id").getValue().toString(),
-                                        snapshot.child("expiry_time").getValue(Long.class));
-                                Log.v("测试时间戳能否打印",model.toString());
+                                        snapshot.child("expiry_time").getValue(Long.class),
+                                        snapshot.child("barcode").getValue().toString());
                                 return model;
 
                             }
@@ -139,6 +138,7 @@ public class ProductListFragment extends Fragment {
                     @Override
                     public void onClick(View view) {
                         Bundle mBundle= new Bundle();
+                        Log.v("在product list里",model.toString());
                         mBundle.putString("name", model.getName());
                         mBundle.putString("price", model.getPrice());
                         mBundle.putString("supplier", model.getSupplier());
@@ -147,7 +147,7 @@ public class ProductListFragment extends Fragment {
                         mBundle.putString("id",model.getId());
                         mBundle.putString("category",model.getCategory());
                         mBundle.putLong("expiry_time",model.getExpiry_time());
-                        Log.v("在product list的时候，expiry time为",String.valueOf(model.getExpiry_time()));
+                        mBundle.putString("barcode",model.getBarcode());
                         ProductFragment productFragment = new ProductFragment();
                         productFragment.setArguments(mBundle);
                         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();

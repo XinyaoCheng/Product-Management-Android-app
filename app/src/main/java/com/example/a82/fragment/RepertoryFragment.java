@@ -84,11 +84,13 @@ public class RepertoryFragment extends Fragment {
         // Inflate the layout for this fragment
         View rootView =inflater.inflate(R.layout.fragment_repertory, container, false);
         rv = rootView.findViewById(R.id.repertory_rv);
+        //initially set recyclevew with beverages category
         setRecyleView();
         category = rootView.findViewById(R.id.repertory_spinner);
         category.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                //everytime select a option in spinner, refresh the recycle view
                 category_selected = (String) adapterView.getItemAtPosition(i);
                 setRecyleView();
             }
@@ -105,22 +107,12 @@ public class RepertoryFragment extends Fragment {
     }
 
     private void setRecyleView() {
-        Log.v("repoerory选择种类",category_selected);
+        Log.v("selected category",category_selected);
          Query query = FirebaseDatabase.getInstance().getReference("products")
                 .orderByChild("category")
                 .equalTo(category_selected);
 
-         query.addListenerForSingleValueEvent(new ValueEventListener() {
-             @Override
-             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                 Log.v("怎么回事啊又是同样的问题",snapshot.getValue().toString());
-             }
 
-             @Override
-             public void onCancelled(@NonNull DatabaseError error) {
-
-             }
-         });
         FirebaseRecyclerOptions<ProductModel> options =
                 new FirebaseRecyclerOptions.Builder<ProductModel>()
                         .setQuery(query, new SnapshotParser<ProductModel>() {
@@ -135,8 +127,8 @@ public class RepertoryFragment extends Fragment {
                                         snapshot.child("amount").getValue().toString(),
                                         snapshot.child("category").getValue().toString(),
                                         snapshot.child("id").getValue().toString(),
-                                        snapshot.child("expiry_time").getValue(Long.class));
-                                Log.v("测试仓库获取数据",snapshot.getValue().toString());
+                                        snapshot.child("expiry_time").getValue(Long.class),
+                                        snapshot.child("barcode").getValue().toString());
                                 return model;
 
                             }
@@ -160,6 +152,7 @@ public class RepertoryFragment extends Fragment {
                 holder.card.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        //go to product detail page with all info
                         Bundle mBundle= new Bundle();
                         mBundle.putString("name", model.getName());
                         mBundle.putString("price", model.getPrice());
@@ -168,6 +161,7 @@ public class RepertoryFragment extends Fragment {
                         mBundle.putString("amount", model.getAmount());
                         mBundle.putString("category",model.getCategory());
                         mBundle.putString("id",model.getId());
+                        mBundle.putString("barcode",model.getBarcode());
                         mBundle.putLong("expiry_time",model.getExpiry_time());
                         ProductFragment productFragment = new ProductFragment();
                         productFragment.setArguments(mBundle);

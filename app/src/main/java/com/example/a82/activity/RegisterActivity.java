@@ -33,7 +33,7 @@ public class RegisterActivity extends AppCompatActivity {
         create_acc_button = findViewById(R.id.creat_account);
         back_Loin_button = findViewById(R.id.back_to_login);
 
-        //back to login\
+        //back to login
         back_Loin_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

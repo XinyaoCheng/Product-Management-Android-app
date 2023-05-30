@@ -29,8 +29,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.a82.R;
+import com.example.a82.activity.BarcodeShowActivity;
 import com.example.a82.model.ProductModel;
-import com.example.a82.util.TranslateUtil;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -79,18 +79,22 @@ public class ProductFragment extends Fragment {
     private String mParam1;
     private String mParam2;
     String category;
-    Button edit_button,save_button, delete_button;
+    Button edit_button,save_button, delete_button,generate_button;
 
     EditText name, supplier,standard,price, amount, expiry_year, expiry_month,expiry_day;
     Spinner category_spinner;
+    //tranlaition api's KEY, URL
     private String API_KEY = "AIzaSyCxDc0s5_Qor-_kzKXCfof5esTuwR7csxI";
     private static String REQUEST_URL = "https://www.googleapis.com/language/translate/v2";
+    //this two is for generating signiture
     private static String PACKAGE_KEY = "X-Android-Package";
     private static String SHA1_KEY = "X-Android-Cert";
-    private String result = "";
+    //need ID and SECRET to access product bibery
+    String API_ID = "zqmvtlempyythelg";
+    String API_SECRET = "ZXFMSklEUmFhbWJzTkRZMCtaSCsxdz09";
     ProductModel productModel;
     Boolean isNewProduct = true;
-    String id;
+    String id, barcode;
 
     public ProductFragment() {
         // Required empty public constructor
@@ -130,35 +134,40 @@ public class ProductFragment extends Fragment {
         View rootview = inflater.inflate(R.layout.fragment_product, container, false);
         initial(rootview);
         Bundle bundle = getArguments();
+        //get barcode
+        barcode = bundle.getString("barcode");
+
         //need to see if it exist in database or add a new one
         if(bundle.getString("id")==null){
             isNewProduct = true;
+            setInfo(name,bundle.getString("name","unknown"));
+            setInfo(price,bundle.getString("price","unknown"));
+            setInfo(supplier,bundle.getString("supplier","unknown"));
+            setInfo(standard,bundle.getString("standard","unknown"));
+
         }else{
             id = bundle.getString("id").toString();
             category = bundle.getString("category").toString();
             setSpinner(category);
             isNewProduct = false;
-        }
-//        if(bundle.getInt("new_product?",0)==1){
-        setInfo(name,bundle.getString("name","unknown"));
-        setInfo(price,bundle.getString("price","unknown"));
-        setInfo(supplier,bundle.getString("supplier","unknown"));
-        setInfo(standard,bundle.getString("standard","unknown"));
-        if(bundle.containsKey("expiry_time")){
-            Date date = new Date(bundle.getLong("expiry_time"));
-            Log.v("过期日期",date.toString());
-            SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy");
-            SimpleDateFormat monthFormat = new SimpleDateFormat("MM");
-            SimpleDateFormat dayFormat = new SimpleDateFormat("dd");
-           //convert timestamp to year, month and day
-            String year = yearFormat.format(date);
-            String month = monthFormat.format(date);
-            String day = dayFormat.format(date);
-            expiry_year.setText(year);
-            expiry_month.setText(month);
-            expiry_day.setText(day);
-        }else{
-            Log.v("expiry time为空","");
+            name.setText(bundle.getString("name","unknown"));
+            price.setText(bundle.getString("price","unknown"));
+            supplier.setText(bundle.getString("supplier","unknown"));
+            standard.setText(bundle.getString("standard","unknown"));
+            amount.setText(bundle.getString("amount","unknown"));
+            if(bundle.containsKey("expiry_time")) {
+                Date date = new Date(bundle.getLong("expiry_time"));
+                SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy");
+                SimpleDateFormat monthFormat = new SimpleDateFormat("MM");
+                SimpleDateFormat dayFormat = new SimpleDateFormat("dd");
+                //convert timestamp to year, month and day
+                String year = yearFormat.format(date);
+                String month = monthFormat.format(date);
+                String day = dayFormat.format(date);
+                expiry_year.setText(year);
+                expiry_month.setText(month);
+                expiry_day.setText(day);
+            }
         }
 
         setUnEditable();
@@ -242,10 +251,70 @@ public class ProductFragment extends Fragment {
                 }
             });
 
-
+        //generate barcode
+        generate_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                generateBarcode();
+            }
+        });
         return rootview;
     }
 
+    private void generateBarcode() {
+        String url = "https://www.mxnzp.com/api/barcode/create?content="
+                +barcode
+                +"&width=500&height=300&type=0"
+                +"&app_id="+API_ID
+                +"&app_secret="+API_SECRET;
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+        Log.v("url to generate barcode",url);
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                Log.v("no such product in libery",e.getMessage());
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                String res = response.body().string();
+                try {
+                    JSONObject response_json = new JSONObject(res);
+                    if(response_json.optString("code").equals("1")){
+                        JSONObject data = response_json.getJSONObject("data");
+                        //go on to barcode showing page with barcode image url
+                        Intent intent = new Intent(getContext(), BarcodeShowActivity.class);
+                        intent.putExtra("barcode_url",data.optString("barCodeUrl"));
+                        startActivity(intent);
+
+                    }else{
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                new AlertDialog.Builder(getActivity())
+                                        .setTitle("Error")
+                                        .setMessage("Fail to find this good")
+                                        .setPositiveButton("OK", null)
+                                        .show();
+                            }
+                        });
+
+                    }
+
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+
+
+            }
+        });
+    }
+
+    //set category into spinner
     private void setSpinner(String category) {
         ArrayAdapter<String> adapter = (ArrayAdapter<String>) category_spinner.getAdapter();
         if(adapter!=null){
@@ -267,9 +336,11 @@ public class ProductFragment extends Fragment {
         expiry_day = rootview.findViewById(R.id.product_expiry_day);
         category_spinner = rootview.findViewById(R.id.category_spinner);
         delete_button = rootview.findViewById(R.id.delete_button);
+        generate_button = rootview.findViewById(R.id.generate_button);
 
     }
 
+    //set all box enable to edit
     private void setEditable() {
         name.setEnabled(true);
         name.setBackgroundResource(R.drawable.border);
@@ -290,6 +361,7 @@ public class ProductFragment extends Fragment {
         category_spinner.setEnabled(true);
     }
 
+    //set all box unenable to edit
     public void setUnEditable(){
         name.setEnabled(false);
         name.setBackgroundResource(R.drawable.blank);
@@ -313,6 +385,7 @@ public class ProductFragment extends Fragment {
         DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference("products/");
         //Determine whether he needs to add new items or modify
         if(isNewProduct){
+            //it's new, need to be added to database
             String id = databaseRef.push().getKey();
             productModel.setId(id);
             databaseRef.child(id).setValue(productModel)
@@ -337,7 +410,9 @@ public class ProductFragment extends Fragment {
                         }
                     });
         }else{
+            //there has already exited this product, so just update its info
             DatabaseReference update_ref = databaseRef.child(id);
+            productModel.setId(id);
             Map<String,Object> updateData = productModel.toMap();
             update_ref.updateChildren(updateData)
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -417,11 +492,12 @@ public class ProductFragment extends Fragment {
             productModel = new ProductModel(name.getText().toString(),
                     price.getText().toString(),
                     supplier.getText().toString(),
-                    amount.getText().toString(),
                     standard.getText().toString(),
+                    amount.getText().toString(),
                     category,
                     "",
-                    timestamp);
+                    timestamp,
+                    barcode);
         }
 
 
@@ -429,6 +505,7 @@ public class ProductFragment extends Fragment {
         return true;
 
     }
+
 // translate the information of product with tranlation api
 // and set txt to EditView
 
@@ -451,7 +528,7 @@ public class ProductFragment extends Fragment {
         okHttpClient.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                Log.e("翻译错误", e.getMessage());
+                Log.e("fail to translate", e.getMessage());
             }
 
             @Override
@@ -459,20 +536,18 @@ public class ProductFragment extends Fragment {
                 String res = response.body().string();
                 try {
                     JSONObject response_json = new JSONObject(res);
-                    Log.v("翻译相应结果",response_json.toString());
                     JSONObject resObject = response_json.getJSONObject("data");
                     JSONArray translations = resObject.getJSONArray("translations");
-                    result = translations.getJSONObject(0).getString("translatedText");
+                    String result = translations.getJSONObject(0).getString("translatedText");
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             view.setText(result);
-                            Log.v("翻译结果",result);
                         }
                     });
 
                 } catch (JSONException e) {
-                    Log.e("翻译错误",e.getMessage());
+                    Log.e("fail to translate",e.getMessage());
                 }
             }
         });
